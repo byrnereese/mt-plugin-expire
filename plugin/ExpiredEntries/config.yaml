@@ -1,0 +1,30 @@
+id: ExpiredEntries
+name: Expired Entries
+description: 'This plugin allows authors and administrators to specify a date and time at which point an entry will expire and be automatically unpublished from a web site.'
+plugin_author: 'Endevver, LLC.'
+plugin_link: 'http://endevver.com/products/'
+schema_version: 1
+version: 0.9
+
+config_settings:
+  ExpirePostFrequency:
+    default: 1
+
+object_types:
+  entry:
+    expire_on: datetime
+
+callbacks:
+    MT::App::CMS::template_param.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit_param
+    MT::App::CMS::template_source.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit
+    MT::App::CMS::cms_pre_save.entry: $ExpiredEntries::ExpiredEntries::Plugin::pre_save
+    MT::App::CMS::cms_pre_save.page: $ExpiredEntries::ExpiredEntries::Plugin::pre_save
+#    MT::App::CMS::template_param.list_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_list_param
+    MT::App::CMS::template_source.list_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_list
+    MT::App::CMS::template_source.entry_table: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_table
+
+tasks:
+  ExpirePost:
+    label: 'Unpublish Expired Entries'
+    frequency: $ExpiredEntries::ExpiredEntries::Plugin::frequency
+    code: $ExpiredEntries::ExpiredEntries::Plugin::task_expire

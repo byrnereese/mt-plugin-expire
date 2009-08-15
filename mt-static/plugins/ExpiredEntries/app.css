@@ -1,0 +1,3 @@
+.listing .status-expired img { 
+  background-image: url(expired.gif);
+}
