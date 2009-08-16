@@ -99,6 +99,8 @@ sub pre_save {
 
     my $date = $app->param('expire_on_date');
     my $time = $app->param('expire_on_time');
+    return 1 unless ($date ne '' && $time ne '');
+
     my $eod  = $date ." ". $time;
     my $error;
 
