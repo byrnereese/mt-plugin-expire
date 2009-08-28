@@ -1,9 +1,8 @@
 # Overview
 
-The Expired Entries for Movable Type and Melody is a plugin that
-allows authors to select for a specific entry a point in time in 
-the future at which point the entry will be automatically 
-unpublished and your site rebuilt.
+The Expired Entries plugin for Movable Type and Melody allows 
+authors to select a date in the future at which an entry will 
+be automatically unpublished and the site rebuilt.
 
 # Why unpublish something?
 
@@ -20,7 +19,7 @@ remove something from a web site.
 # Prerequisities
 
 * Movable Type 4.x.
-* Your site must be running the `tools/runperiodictasks` script
+* Your site must be running the `tools/run-periodic-tasks` script
   as a cronjob or in daemon mode.
 
 # Installation
@@ -31,9 +30,9 @@ http://tinyurl.com/easy-plugin-install
 
 # Usage
 
-Once the plugin is installed a new option will appear every entry
-and page's publish date field found in Movable Type and Melody's
-Edit Entry screen. Select a date, save the entry and done.
+Once the plugin is installed a new option will appear on the Edit Entry 
+screen under each entry and page's publish date field.
+Select a date, save the entry and done.
 
 At the appointed time the entry's status will be changed to 
 "Unpublished (Expired)," the entry will be removed from the web site
@@ -44,4 +43,4 @@ trace of the entry or page.
 
 * **ExpireEntryFrequency** - The amount of time in minutes to 
 wait before checking, expiring and unpublishing entries. The default 
-is 1 (expressed in minites).
+is 1 (expressed in minutes).

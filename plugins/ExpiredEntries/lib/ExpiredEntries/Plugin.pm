@@ -92,6 +92,11 @@ END_TMPL
 END_TMPL
     $$tmpl =~ s{(<select name="status"[^>]*>.*?)</select>}{$1 $slug</select>}msgi;
 
+    $slug = <<END_TMPL;
+                        <mt:else name="status_expired">
+                            <span class="icon-left-wide icon-draft"><__trans phrase="Unpublished (Expired)"></span>
+END_TMPL
+    $$tmpl =~ s{(<mt:else name="status_review">)}{$slug $1}msgi;
 }
 
 sub pre_save {
