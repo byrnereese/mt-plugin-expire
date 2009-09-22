@@ -132,7 +132,7 @@ sub pre_save {
     return $app->error( $error ) if $error;
 
     my $ts = sprintf "%04d%02d%02d%02d%02d%02d", $1, $2, $3, $4, $5, $s;
-    MT->log( { blog_id => $app->blog->id, message => "Setting expire date to $ts" });
+#    MT->log( { blog_id => $app->blog->id, message => "Setting expire date to $ts" });
     $obj->expire_on($ts);
 
     1;
