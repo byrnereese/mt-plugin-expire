@@ -20,8 +20,10 @@ sub hdlr_expire_date {
     my ($ctx, $args) = @_;
     my $e = $ctx->stash('entry')
         or return $ctx->_no_entry_error();
+    return '' unless $e->expire_on;
     $args->{ts} = $e->expire_on;
-    return MT::Template::ContextHandlers::_hdlr_date($ctx, $args);
+    require MT::Template::ContextHandlers;
+    return MT::Template::Context::_hdlr_date($ctx, $args);
 }
 
 sub frequency {
