@@ -16,6 +16,14 @@ sub MT::Entry::EXPIRED () { 6 }
 # use Log::Log4perl::Resurrector;
 # my $logger ||= MT::Log::Log4perl->new();
 
+sub hdlr_expire_date {
+    my ($ctx, $args) = @_;
+    my $e = $ctx->stash('entry')
+        or return $ctx->_no_entry_error();
+    $args->{ts} = $e->expire_on;
+    return MT::Template::ContextHandlers::_hdlr_date($ctx, $args);
+}
+
 sub frequency {
     my $mt = MT->instance;
     my $cfg = $mt->{config};
