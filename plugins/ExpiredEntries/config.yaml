@@ -27,8 +27,4 @@ callbacks:
     MT::App::CMS::template_source.list_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_list
     MT::App::CMS::template_source.entry_table: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_table
 
-tasks:
-  ExpirePost:
-    label: 'Unpublish Expired Entries'
-    frequency: $ExpiredEntries::ExpiredEntries::Plugin::frequency
-    code: $ExpiredEntries::ExpiredEntries::Plugin::task_expire
+tasks: $ExpiredEntries::ExpiredEntries::Plugin::load_tasks

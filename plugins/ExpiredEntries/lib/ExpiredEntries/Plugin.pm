@@ -12,10 +12,6 @@ use MT::Util qw( relative_date    offset_time format_ts days_in
 
 sub MT::Entry::EXPIRED () { 6 }
 
-# use MT::Log::Log4perl qw( l4mtdump );
-# use Log::Log4perl::Resurrector;
-# my $logger ||= MT::Log::Log4perl->new();
-
 sub hdlr_expire_date {
     my ($ctx, $args) = @_;
     my $e = $ctx->stash('entry')
@@ -26,10 +22,26 @@ sub hdlr_expire_date {
     return MT::Template::Context::_hdlr_date($ctx, $args);
 }
 
+sub load_tasks {
+    my $cfg = MT->config;
+    return {
+	'ExpirePost' => {
+	  'label' => 'Unpublish Expired Entries',
+	  'frequency' => $cfg->ExpirePostFrequency * 60,
+	  'code' => sub { 
+	      ExpiredEntries::Plugin->task_expire; 
+	  },
+
+       }
+    };
+}
+
 sub frequency {
     my $mt = MT->instance;
     my $cfg = $mt->{config};
-    return $cfg->ExpirePostFrequency * 60;
+    my $freq = $cfg->ExpirePostFrequency || 1;
+    MT->log({ message => 'foo' });
+    return $freq * 60;
 }
 
 sub xfrm_edit_param {
