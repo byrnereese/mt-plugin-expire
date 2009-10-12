@@ -40,7 +40,6 @@ sub frequency {
     my $mt = MT->instance;
     my $cfg = $mt->{config};
     my $freq = $cfg->ExpirePostFrequency || 1;
-    MT->log({ message => 'foo' });
     return $freq * 60;
 }
 
@@ -81,13 +80,6 @@ sub xfrm_preview_param {
 	data_name => 'expire_on_time',
 	data_value => $time,
     };
-
-    foreach (@{ $param->{entry_loop} }) {
-	if ($_->{data_name} =~ /expire/) {
-	    use Data::Dumper;
-	    MT->log({ blog_id => $blog->id, message => Dumper($_) });
-	}
-    }
 
 }
 
