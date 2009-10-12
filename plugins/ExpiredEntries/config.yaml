@@ -4,7 +4,7 @@ description: 'This plugin allows authors and administrators to specify a date an
 plugin_author: 'Endevver, LLC.'
 plugin_link: 'http://endevver.com/products/'
 schema_version: 1
-version: 0.9.4
+version: 0.9.5
 
 config_settings:
   ExpirePostFrequency:
@@ -19,12 +19,12 @@ tags:
     EntryExpireDate: $ExpiredEntries::ExpiredEntries::Plugin::hdlr_expire_date
 
 callbacks:
-    MT::App::CMS::template_param.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit_param
-    MT::App::CMS::template_source.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit
     MT::App::CMS::cms_pre_save.entry: $ExpiredEntries::ExpiredEntries::Plugin::pre_save
     MT::App::CMS::cms_pre_save.page: $ExpiredEntries::ExpiredEntries::Plugin::pre_save
-#    MT::App::CMS::template_param.list_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_list_param
     MT::App::CMS::template_source.list_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_list
     MT::App::CMS::template_source.entry_table: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_table
+    MT::App::CMS::template_source.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit
+    MT::App::CMS::template_param.edit_entry: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_edit_param
+    MT::App::CMS::template_param.preview_strip: $ExpiredEntries::ExpiredEntries::Plugin::xfrm_preview_param
 
 tasks: $ExpiredEntries::ExpiredEntries::Plugin::load_tasks

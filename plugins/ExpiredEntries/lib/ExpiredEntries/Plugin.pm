@@ -59,6 +59,38 @@ sub xfrm_edit_param {
 	|| format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );    
 }
 
+sub xfrm_preview_param {
+    my ($cb, $app, $param, $tmpl) = @_;
+
+    my $entry_id = $app->param('id') or return;
+    my $blog = $app->blog;
+
+    my $obj = MT->model('entry')->load( $entry_id )
+        or return $cb->error('failed to load entry');
+
+    my $date = $app->{query}->param('expire_on_date')
+        || format_ts( "%Y-%m-%d", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
+    my $time = $app->{query}->param('expire_on_time')
+        || format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
+
+    push @{$param->{entry_loop}}, {
+	data_name => 'expire_on_date',
+	data_value => $date,
+    };
+    push @{$param->{entry_loop}}, {
+	data_name => 'expire_on_time',
+	data_value => $time,
+    };
+
+    foreach (@{ $param->{entry_loop} }) {
+	if ($_->{data_name} =~ /expire/) {
+	    use Data::Dumper;
+	    MT->log({ blog_id => $blog->id, message => Dumper($_) });
+	}
+    }
+
+}
+
 sub xfrm_list {
     my ($cb, $app, $tmpl) = @_;
     my $slug;
