@@ -2,6 +2,6 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME            => 'Expired Entires',
-    VERSION         => '0.9.5',
+    VERSION         => '0.9.6',
     DISTNAME        => 'ExpiredEntries',
 );

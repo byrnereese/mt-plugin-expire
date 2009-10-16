@@ -61,16 +61,18 @@ sub xfrm_edit_param {
 sub xfrm_preview_param {
     my ($cb, $app, $param, $tmpl) = @_;
 
-    my $entry_id = $app->param('id') or return;
+#    my $entry_id = $app->param('id') or return;
     my $blog = $app->blog;
 
-    my $obj = MT->model('entry')->load( $entry_id )
-        or return $cb->error('failed to load entry');
+    MT->log({ message => "In preview param callback" });
 
-    my $date = $app->{query}->param('expire_on_date')
-        || format_ts( "%Y-%m-%d", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
-    my $time = $app->{query}->param('expire_on_time')
-        || format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
+#    my $obj = MT->model('entry')->load( $entry_id )
+#        or return $cb->error('failed to load entry');
+
+    my $date = $app->{query}->param('expire_on_date');
+#        || format_ts( "%Y-%m-%d", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
+    my $time = $app->{query}->param('expire_on_time');
+#        || format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
 
     push @{$param->{entry_loop}}, {
 	data_name => 'expire_on_date',
@@ -80,7 +82,8 @@ sub xfrm_preview_param {
 	data_name => 'expire_on_time',
 	data_value => $time,
     };
-
+#    use Data::Dumper;
+#    MT->log({ message => Dumper($param->{entry_loop}) });
 }
 
 sub xfrm_list {
