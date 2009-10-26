@@ -61,18 +61,10 @@ sub xfrm_edit_param {
 sub xfrm_preview_param {
     my ($cb, $app, $param, $tmpl) = @_;
 
-#    my $entry_id = $app->param('id') or return;
     my $blog = $app->blog;
 
-    MT->log({ message => "In preview param callback" });
-
-#    my $obj = MT->model('entry')->load( $entry_id )
-#        or return $cb->error('failed to load entry');
-
     my $date = $app->{query}->param('expire_on_date');
-#        || format_ts( "%Y-%m-%d", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
     my $time = $app->{query}->param('expire_on_time');
-#        || format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
 
     push @{$param->{entry_loop}}, {
 	data_name => 'expire_on_date',
@@ -82,8 +74,6 @@ sub xfrm_preview_param {
 	data_name => 'expire_on_time',
 	data_value => $time,
     };
-#    use Data::Dumper;
-#    MT->log({ message => Dumper($param->{entry_loop}) });
 }
 
 sub xfrm_list {
@@ -181,7 +171,6 @@ sub pre_save {
     return $app->error( $error ) if $error;
 
     my $ts = sprintf "%04d%02d%02d%02d%02d%02d", $1, $2, $3, $4, $5, $s;
-#    MT->log( { blog_id => $app->blog->id, message => "Setting expire date to $ts" });
     $obj->expire_on($ts);
 
     1;
@@ -190,24 +179,20 @@ sub pre_save {
 sub task_expire {
     my $this = shift;
 
-    require MT::Blog;
-    require MT::Entry;
     require MT::Util;
     my $mt            = MT->instance;
     my $total_changed = 0;
-    my @blogs = MT::Blog->load(undef, {
-        join => MT::Entry->join_on('blog_id', {
+    my @blogs = MT->model('blog')->load(undef, {
+        join => MT->model('entry')->join_on('blog_id', {
             status => MT::Entry::RELEASE(),
             expire_on => { not_null => 1 },
 				   }, { unique => 1 })
 			       });
     foreach my $blog (@blogs) {
-	print "The blog ".($blog->name)." has expired entries.\n";
-        my @ts = MT::Util::offset_time_list( time, $blog );
+        my @ts = offset_time_list( time, $blog );
         my $now = sprintf "%04d%02d%02d%02d%02d%02d", $ts[5] + 1900, $ts[4] + 1,
 	@ts[ 3, 2, 1, 0 ];
-	print "  Searching for entries expired before $now\n";
-        my $iter = MT::Entry->load_iter(
+        my $iter = MT->model('entry')->load_iter(
             {
                 blog_id => $blog->id,
                 status  => MT::Entry::RELEASE(),
@@ -221,7 +206,6 @@ sub task_expire {
 	    );
         my @queue;
         while ( my $entry = $iter->() ) {
-	    print "  Queuing ".($entry->title). " for expiration.\n";
             push @queue, $entry->id if $entry->expire_on le $now;
         }
 
@@ -229,7 +213,7 @@ sub task_expire {
         my @results;
         my %rebuild_queue;
         foreach my $entry_id (@queue) {
-            my $entry = MT::Entry->load($entry_id)
+            my $entry = MT->model('entry')->load($entry_id)
                 or next;
             $entry->status( MT::Entry::EXPIRED() );
             $entry->save
