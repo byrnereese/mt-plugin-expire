@@ -100,7 +100,18 @@ END_TMPL
             </mt:if>
 END_TMPL
     $$tmpl =~ s{(<mt:if name="status_draft">\s*<a href)}{$slug $1}msgi;
+}
 
+sub xfrm_list_param {
+    my ($cb, $app, $param, $tmpl) = @_;
+    my $table = $param->{'entry_table'}[0];
+    foreach my $e (@{ $table->{'object_loop'} }) {
+	if ($e->{status} == 6) {
+	    if ($e->{expire_on} < epoch2ts(time)) {
+		MT->log({ message => "Entry has expired on " . $e->{expire_on} });
+	    }
+	}
+    }
 }
 
 sub xfrm_edit {
@@ -178,7 +189,6 @@ sub pre_save {
 
 sub task_expire {
     my $this = shift;
-
     require MT::Util;
     my $mt            = MT->instance;
     my $total_changed = 0;
@@ -186,8 +196,8 @@ sub task_expire {
         join => MT->model('entry')->join_on('blog_id', {
             status => MT::Entry::RELEASE(),
             expire_on => { not_null => 1 },
-				   }, { unique => 1 })
-			       });
+	   }, { unique => 1 })
+    });
     foreach my $blog (@blogs) {
         my @ts = offset_time_list( time, $blog );
         my $now = sprintf "%04d%02d%02d%02d%02d%02d", $ts[5] + 1900, $ts[4] + 1,
@@ -206,7 +216,8 @@ sub task_expire {
 	    );
         my @queue;
         while ( my $entry = $iter->() ) {
-            push @queue, $entry->id if $entry->expire_on le $now;
+	    next unless $entry->expire_on;
+	    push @queue, $entry->id if $entry->expire_on <= $now;
         }
 
         my $changed = 0;
