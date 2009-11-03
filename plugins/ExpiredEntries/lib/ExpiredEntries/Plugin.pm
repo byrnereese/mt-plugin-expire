@@ -56,6 +56,13 @@ sub xfrm_edit_param {
 	|| format_ts( "%Y-%m-%d", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );
     $param->{'expire_on_time'} = $app->{query}->param('expire_on_time')
 	|| format_ts( "%H:%M:%S", $obj->expire_on, $blog, $app->user ? $app->user->preferred_language : undef );    
+
+    if ($param->{'expire_on_date'} eq '' || $param->{'expire_on_date'} eq '0000-00-00') {
+	$param->{'expire_on_date'} = '';
+	$param->{'expire_on_time'} = '';
+    } else {
+	$param->{'has_expire'} = 1;
+    }
 }
 
 sub xfrm_preview_param {
@@ -122,7 +129,10 @@ sub xfrm_edit {
         <mtapp:setting
             id="expire_on"
             label="\$label">
-            <span class="date-time-fields">
+            <span id="expire-on-fields-toggle" <mt:if name="has_expire">class="hidden"</mt:if>>
+              <a href="javascript:void(0);" onclick="TC.addClassName(getByID('expire-on-fields-toggle'), 'hidden'); TC.removeClassName(getByID('expire-on-fields'), 'hidden'); return false;">Set expiration date/time</a>
+            </span>
+            <span id="expire-on-fields" class="date-time-fields<mt:unless name="has_expire"> hidden</mt:unless>">
                 <input id="ExpireOn" class="entry-date" name="expire_on_date" value="<mt:var name="expire_on_date" escape="html">" />
                 <a href="javascript:void(0);" mt:command="open-calendar-expire-on" class="date-picker" title="<__trans phrase="Select expiration date">"><span>Choose Date</span></a>
                 <input class="entry-time" name="expire_on_time" value="<mt:var name="expire_on_time" escape="html">" />
@@ -156,8 +166,15 @@ sub pre_save {
     my $time = $app->param('expire_on_time');
     return 1 unless ($date ne '' && $time ne '');
 
-    my $eod  = $date ." ". $time;
     my $error;
+    if ($date eq '0000-00-00') {
+	$error = $app->translate(
+	    "Invalid date '[_1]'; The date you provided to not appear to be a real date.",
+	    $date
+	    );
+    }
+
+    my $eod  = $date ." ". $time;
 
     unless ( $eod =~ m!^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$! ) {
 	$error = $app->translate(
