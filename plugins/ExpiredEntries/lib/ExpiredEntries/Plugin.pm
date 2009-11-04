@@ -12,6 +12,12 @@ use MT::Util qw( relative_date    offset_time format_ts days_in
 
 sub MT::Entry::EXPIRED () { 6 }
 
+sub _entry_label {
+    my $app = MT->instance;
+    my $type = $app->param('type') || 'entry';
+    $app->model($type)->class_label_plural;
+}
+
 sub hdlr_expire_date {
     my ($ctx, $args) = @_;
     my $e = $ctx->stash('entry')
@@ -170,7 +176,7 @@ sub load_filters {
 
     $reg->{'entry'}->{'expired'} = {
 	label => sub {
-                    $app->translate( 'Expired [_1]', MT::App::CMS::_entry_label );
+                    $app->translate( 'Expired [_1]', _entry_label );
                 },
 	order => 100,
 	handler => sub {
