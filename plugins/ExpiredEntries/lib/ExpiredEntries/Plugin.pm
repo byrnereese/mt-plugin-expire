@@ -8,7 +8,7 @@ use warnings;
 
 use Carp qw( croak longmess confess );
 use MT::Util qw( relative_date    offset_time format_ts days_in 
-                 offset_time_list epoch2ts    ts2epoch  );
+                 offset_time_list epoch2ts    ts2epoch  trim );
 
 sub MT::Entry::EXPIRED () { 6 }
 
@@ -159,12 +159,37 @@ END_TMPL
     $$tmpl =~ s{(<mt:else name="status_review">)}{$slug $1}msgi;
 }
 
+sub load_filters {
+    my $app = shift;
+    my $core = MT->component('Core');
+
+#    my $fltrs = $core->{registry}->{applications}->{cms}->{list_filters};
+#    delete $fltrs->{'entry'};
+
+    my $reg;
+
+    $reg->{'entry'}->{'expired'} = {
+	label => sub {
+                    $app->translate( 'Expired [_1]', MT::App::CMS::_entry_label );
+                },
+	order => 100,
+	handler => sub {
+	    my ( $terms, $args ) = @_;
+	    $terms->{status} = MT::Entry::EXPIRED();
+	},
+    };
+    return $reg;
+}
+
 sub pre_save {
     my ($cb, $app, $obj, $orig) = @_;
 
-    my $date = $app->param('expire_on_date');
-    my $time = $app->param('expire_on_time');
-    return 1 unless ($date ne '' && $time ne '');
+    my $date = trim($app->param('expire_on_date'));
+    my $time = trim($app->param('expire_on_time'));
+    if ($date && $time && $date ne '' && $time ne '') {
+	$obj->expire_on( undef );
+	return 1;
+    }
 
     my $error;
     if ($date eq '0000-00-00') {
@@ -233,7 +258,7 @@ sub task_expire {
 	    );
         my @queue;
         while ( my $entry = $iter->() ) {
-	    next unless $entry->expire_on;
+	    next unless $entry->expire_on && $entry->expire_on ne '';
 	    push @queue, $entry->id if $entry->expire_on <= $now;
         }
 
@@ -244,6 +269,7 @@ sub task_expire {
             my $entry = MT->model('entry')->load($entry_id)
                 or next;
             $entry->status( MT::Entry::EXPIRED() );
+	    MT->log({ blog_id => $entry->blog_id, message => "Expiring " . $entry->class . " " . $entry->title . " with expiration date of " . $entry->expire_on });
             $entry->save
 		or die $entry->errstr;
 
@@ -273,8 +299,8 @@ sub task_expire {
 		    or die $mt->errstr;
             };
             if ( my $err = $@ ) {
-                # a fatal error occured while processing the rebuild                                                                    
-                # step. LOG the error and revert the entry/entries:                                                                     
+                # a fatal error occured while processing the rebuild
+                # step. LOG the error and revert the entry/entries:
                 require MT::Log;
                 $mt->log(
                     {
