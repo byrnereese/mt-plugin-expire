@@ -4,7 +4,7 @@ description: 'This plugin allows authors and administrators to specify a date an
 plugin_author: 'Endevver, LLC.'
 plugin_link: 'http://endevver.com/products/'
 schema_version: 1
-version: 1.0.4
+version: 1.0.5
 
 config_settings:
   ExpirePostFrequency:

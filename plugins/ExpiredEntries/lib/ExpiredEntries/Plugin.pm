@@ -192,27 +192,30 @@ sub pre_save {
 
     my $date = trim($app->param('expire_on_date'));
     my $time = trim($app->param('expire_on_time'));
-    if ($date && $time && $date ne '' && $time ne '') {
+
+    if (!$date || !$time || $date eq '' || $time eq '') {
 	$obj->expire_on( undef );
 	return 1;
     }
 
     my $error;
     if ($date eq '0000-00-00') {
-	$error = $app->translate(
+	return $app->error( $app->translate(
 	    "Invalid date '[_1]'; The date you provided to not appear to be a real date.",
 	    $date
-	    );
+			    ) );
     }
 
     my $eod  = $date ." ". $time;
 
     unless ( $eod =~ m!^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$! ) {
-	$error = $app->translate(
-	    "Invalid date '[_1]'; authored on dates must be in the format YYYY-MM-DD HH:MM:SS.",
-	    $eod
-	    );
+	return $app->error( $app->translate(
+				"Invalid date '[_1]'; authored on dates must be in the format YYYY-MM-DD HH:MM:SS.",
+				$eod
+			    ) );
     }
+
+    MT->log({ message => "eod = $eod" });
 
     my $s = $6 || 0;
     if ($s > 59	|| $s < 0 || 
@@ -221,13 +224,11 @@ sub pre_save {
 	$2 > 12	|| $2 < 1 || 
 	$3 < 1  || 
 	( days_in( $2, $1 ) < $3 && !MT::Util::leap_day( $0, $1, $2 ) ) ) {
-	$error = $app->translate(
+	return $app->error( $app->translate(
 	    "Invalid date '[_1]'; expired on dates should be real dates.",
 	    $eod
-	    );
+			    ) );
     }
-
-    return $app->error( $error ) if $error;
 
     my $ts = sprintf "%04d%02d%02d%02d%02d%02d", $1, $2, $3, $4, $5, $s;
     $obj->expire_on($ts);
