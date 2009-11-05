@@ -265,7 +265,7 @@ sub task_expire {
 	    );
         my @queue;
         while ( my $entry = $iter->() ) {
-	    next unless $entry->expire_on && $entry->expire_on ne '';
+	    next unless $entry->expire_on && $entry->expire_on ne '' && $entry->expire_on ne '00000000000000';
 	    push @queue, $entry->id if $entry->expire_on <= $now;
         }
 
