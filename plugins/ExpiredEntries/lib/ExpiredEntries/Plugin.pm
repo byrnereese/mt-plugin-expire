@@ -215,8 +215,6 @@ sub pre_save {
 			    ) );
     }
 
-    MT->log({ message => "eod = $eod" });
-
     my $s = $6 || 0;
     if ($s > 59	|| $s < 0 || 
 	$5 > 59 || $5 < 0 || 
