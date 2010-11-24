@@ -37,8 +37,8 @@ sub load_tasks {
 	  'code' => sub { 
 	      ExpiredEntries::Plugin->task_expire; 
 	  },
-
-       }
+      
+    }
     };
 }
 
