@@ -201,6 +201,12 @@ sub load_filters {
 sub pre_save {
     my ( $cb, $app, $obj, $orig ) = @_;
 
+    # This should only invoked if app is CMS, because of the filtering for app->param
+    # Perhaps this should just be a MT::CMS callback?
+    # This is safe though because this callback is designed to read from submitted 
+    # form input and set the date and time properly.
+    return unless $app->isa('MT::App::CMS');
+
     my $date = trim( $app->param('expire_on_date') );
     my $time = trim( $app->param('expire_on_time') );
 
